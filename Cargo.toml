@@ -1,0 +1,13 @@
+[package]
+name = "snaky"
+version = "0.1.0"
+edition = "2021"
+licence = "GPL-3.0"
+
+[dependencies]
+bevy = "0.6"
+rand = "0.8"
+
+# Dependencies for WASM only.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "0.2", features = ["js"] }
