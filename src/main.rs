@@ -36,7 +36,7 @@ fn setup_camera(mut commands: Commands, win_res: Res<Windows>) {
     new_camera.orthographic_projection.scaling_mode =
         bevy::render::camera::ScalingMode::FixedVertical;
     // Set camera variables
-    new_camera.orthographic_projection.scale = win.height() / 2.0;
+    new_camera.orthographic_projection.scale = win.height() / 6.0;
     // Spawn new camera
     commands.spawn_bundle(new_camera);
     // Spawn letterboxing sprites

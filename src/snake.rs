@@ -53,7 +53,7 @@ fn spawn_head(mut commands: Commands) {
             ..Default::default()
         })
         .insert(Head)
-        .insert(Position { x: 3, y: 3 });
+        .insert(Position { x: 5, y: 5 });
 }
 
 fn move_head(
