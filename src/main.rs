@@ -8,6 +8,11 @@ mod snake;
 const WIN_WIDTH: f32 = 800.0;
 const WIN_HEIGHT: f32 = 600.0;
 
+struct GameSize {
+    width: f32,
+    height: f32,
+}
+
 fn main() {
     let mut app = App::new();
 
@@ -17,7 +22,11 @@ fn main() {
         height: WIN_HEIGHT,
         ..Default::default()
     })
-    .insert_resource(ClearColor(Color::rgb(0.1, 0.1, 0.1)));
+    .insert_resource(ClearColor(Color::rgb(0.1, 0.1, 0.1)))
+    .insert_resource(GameSize {
+        width: WIN_WIDTH,
+        height: WIN_HEIGHT,
+    });
 
     app.add_plugins(DefaultPlugins)
         .add_plugin(SnakePlugin)
@@ -36,7 +45,7 @@ fn setup_camera(mut commands: Commands, win_res: Res<Windows>) {
     new_camera.orthographic_projection.scaling_mode =
         bevy::render::camera::ScalingMode::FixedVertical;
     // Set camera variables
-    new_camera.orthographic_projection.scale = win.height() / 6.0;
+    new_camera.orthographic_projection.scale = win.height() / 2.0;
     // Spawn new camera
     commands.spawn_bundle(new_camera);
     // Spawn letterboxing sprites

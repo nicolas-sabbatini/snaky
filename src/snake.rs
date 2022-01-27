@@ -21,8 +21,8 @@ impl Into<Position> for DirectionStatus {
         match self {
             DirectionStatus::Left => Position { x: -1, y: 0 },
             DirectionStatus::Right => Position { x: 1, y: 0 },
-            DirectionStatus::Up => Position { x: 0, y: 1 },
-            DirectionStatus::Down => Position { x: 0, y: -1 },
+            DirectionStatus::Up => Position { x: 0, y: -1 },
+            DirectionStatus::Down => Position { x: 0, y: 1 },
         }
     }
 }
@@ -46,14 +46,14 @@ fn spawn_head(mut commands: Commands) {
         .spawn_bundle(SpriteBundle {
             sprite: Sprite {
                 color: HEAD_COLOR,
-                custom_size: Some(Vec2::new(10.0, 10.0)),
+                custom_size: Some(Vec2::new(100.0, 100.0)),
                 ..Default::default()
             },
             transform: Transform::from_xyz(0.0, 0.0, 5.0),
             ..Default::default()
         })
         .insert(Head)
-        .insert(Position { x: 5, y: 5 });
+        .insert(Position { x: 0, y: 0 });
 }
 
 fn move_head(
