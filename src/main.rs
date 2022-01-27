@@ -1,8 +1,10 @@
 use arena::ArenaPlugin;
 use bevy::prelude::*;
+use food::FoodPlugin;
 use snake::SnakePlugin;
 
 mod arena;
+mod food;
 mod snake;
 
 const WIN_WIDTH: f32 = 800.0;
@@ -30,7 +32,8 @@ fn main() {
 
     app.add_plugins(DefaultPlugins)
         .add_plugin(SnakePlugin)
-        .add_plugin(ArenaPlugin);
+        .add_plugin(ArenaPlugin)
+        .add_plugin(FoodPlugin);
 
     app.add_startup_system(setup_camera);
 

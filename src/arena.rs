@@ -5,9 +5,9 @@ use std::ops::Add;
 const ARENA_WIDTH: u32 = 8;
 const ARENA_HEIGHT: u32 = 6;
 
-struct ArenaSize {
-    width: u32,
-    height: u32,
+pub struct ArenaSize {
+    pub width: u32,
+    pub height: u32,
 }
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]

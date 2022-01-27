@@ -3,7 +3,7 @@ use bevy::prelude::*;
 
 // Snake constant
 const HEAD_COLOR: Color = Color::rgb(0.7, 0.7, 0.7);
-const HEAD_BODY: Color = Color::rgb(0.5, 0.5, 0.5);
+const BODY_COLOR: Color = Color::rgb(0.5, 0.5, 0.5);
 
 #[derive(Component, Debug)]
 struct Head;
@@ -46,10 +46,9 @@ fn spawn_head(mut commands: Commands) {
         .spawn_bundle(SpriteBundle {
             sprite: Sprite {
                 color: HEAD_COLOR,
-                custom_size: Some(Vec2::new(100.0, 100.0)),
+                custom_size: Some(Vec2::new(95.0, 95.0)),
                 ..Default::default()
             },
-            transform: Transform::from_xyz(0.0, 0.0, 5.0),
             ..Default::default()
         })
         .insert(Head)
@@ -73,6 +72,6 @@ fn move_head(
     let step_direction: Position = dir.0.into();
 
     for mut pos in query.iter_mut() {
-        *pos = *pos + step_direction;
+        //*pos = *pos + step_direction;
     }
 }
