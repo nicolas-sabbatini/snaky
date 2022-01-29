@@ -29,13 +29,22 @@ impl Plugin for FoodPlugin {
     }
 }
 
-fn food_spawner(mut commands: Commands, arena_size: Res<ArenaSize>) {
+fn food_spawner(mut commands: Commands, arena_size: Res<ArenaSize>, query: Query<&Position>) {
+    let new_position = || Position {
+        x: (random::<f32>() * arena_size.width as f32) as i32,
+        y: (random::<f32>() * arena_size.height as f32) as i32,
+    };
+    let mut position = new_position();
+    let mut ocupided_position: Vec<Position> = Vec::new();
+    for pos in query.iter() {
+        ocupided_position.push(*pos);
+    }
+    while ocupided_position.contains(&position) {
+        position = new_position();
+    }
     commands.spawn_bundle(FoodBundle {
         food: Food,
-        position: Position {
-            x: (random::<f32>() * arena_size.width as f32) as i32,
-            y: (random::<f32>() * arena_size.height as f32) as i32,
-        },
+        position,
         sprite: SpriteBundle {
             sprite: Sprite {
                 color: FOOD_COLOR,
