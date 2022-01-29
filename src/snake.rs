@@ -164,21 +164,19 @@ fn spawn_head(mut commands: Commands) {
 }
 
 fn spawn_body(mut commands: Commands) {
-    for _ in 0..2400 {
-        commands.spawn_bundle(BodyPartBundle {
-            body_part: BodyPart,
-            position: Position { x: 0, y: 0 },
-            order: Order(1),
-            sprite: SpriteBundle {
-                sprite: Sprite {
-                    color: BODY_COLOR,
-                    custom_size: Some(Vec2::new(CEL_SIZE * 0.75, CEL_SIZE * 0.75)),
-                    ..Default::default()
-                },
+    commands.spawn_bundle(BodyPartBundle {
+        body_part: BodyPart,
+        position: Position { x: 0, y: 0 },
+        order: Order(1),
+        sprite: SpriteBundle {
+            sprite: Sprite {
+                color: BODY_COLOR,
+                custom_size: Some(Vec2::new(CEL_SIZE * 0.75, CEL_SIZE * 0.75)),
                 ..Default::default()
             },
-        });
-    }
+            ..Default::default()
+        },
+    });
     commands.insert_resource(AmountBodyParts(1))
 }
 
