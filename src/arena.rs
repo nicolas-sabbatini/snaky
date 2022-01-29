@@ -2,8 +2,9 @@ use crate::GameSize;
 use bevy::prelude::*;
 use std::ops::Add;
 
-const ARENA_WIDTH: u32 = 8;
-const ARENA_HEIGHT: u32 = 6;
+const ARENA_WIDTH: u32 = 40;
+const ARENA_HEIGHT: u32 = 30;
+pub const CEL_SIZE: f32 = 20.0;
 
 pub struct ArenaSize {
     pub width: u32,
@@ -50,7 +51,7 @@ fn update_position(
     mut query: Query<(&Position, &mut Transform)>,
 ) {
     fn convert(pos: f32, g_size: f32, a_size: f32) -> f32 {
-        pos / a_size * g_size - (g_size / 2.0) + 50.0
+        pos / a_size * g_size - (g_size / 2.0) + (CEL_SIZE * 0.5)
     }
     for (pos, mut transform) in query.iter_mut() {
         transform.translation = Vec3::new(

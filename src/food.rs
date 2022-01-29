@@ -1,6 +1,5 @@
-use crate::arena::{ArenaSize, Position};
+use crate::arena::{ArenaSize, Position, CEL_SIZE};
 use bevy::{
-    core::FixedTimestep,
     ecs::{schedule::ShouldRun, system::QuerySingleError},
     prelude::*,
 };
@@ -40,7 +39,7 @@ fn food_spawner(mut commands: Commands, arena_size: Res<ArenaSize>) {
         sprite: SpriteBundle {
             sprite: Sprite {
                 color: FOOD_COLOR,
-                custom_size: Some(Vec2::new(75.0, 75.0)),
+                custom_size: Some(Vec2::new(CEL_SIZE * 0.75, CEL_SIZE * 0.75)),
                 ..Default::default()
             },
             ..Default::default()

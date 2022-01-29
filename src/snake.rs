@@ -1,3 +1,5 @@
+use crate::arena::CEL_SIZE;
+
 use super::arena::Position;
 use bevy::{core::FixedTimestep, prelude::*};
 
@@ -66,7 +68,7 @@ impl Plugin for SnakePlugin {
         )
         .add_system_set(
             SystemSet::new()
-                .with_run_criteria(FixedTimestep::step(0.5))
+                .with_run_criteria(FixedTimestep::step(0.125))
                 .with_system(move_snake.label(SnakeStages::Movement)),
         );
     }
@@ -93,7 +95,7 @@ fn spawn_head(mut commands: Commands) {
         sprite: SpriteBundle {
             sprite: Sprite {
                 color: HEAD_COLOR,
-                custom_size: Some(Vec2::new(95.0, 95.0)),
+                custom_size: Some(Vec2::new(CEL_SIZE * 0.95, CEL_SIZE * 0.95)),
                 ..Default::default()
             },
             ..Default::default()
