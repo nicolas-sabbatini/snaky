@@ -1,4 +1,4 @@
-use crate::arena::CEL_SIZE;
+use crate::{arena::CEL_SIZE, food::Food};
 
 use super::arena::Position;
 use bevy::{core::FixedTimestep, prelude::*};
@@ -23,16 +23,20 @@ struct HeadBundle {
 #[derive(Component, Debug)]
 struct BodyPart;
 
+#[derive(Component, Debug)]
+struct Order(usize);
+
+#[derive(Debug)]
+struct AmountBodyParts(usize);
+
 #[derive(Bundle)]
 struct BodyPartBundle {
     body_part: BodyPart,
     position: Position,
+    order: Order,
     #[bundle]
     sprite: SpriteBundle,
 }
-
-#[derive(Component, Debug)]
-struct Last;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 enum Direction {
@@ -69,12 +73,17 @@ struct MovementStatus {
     buffer_direction: Option<Direction>,
 }
 
+// Events definitions
+struct EatEvent;
+
 // Plugin definition
 pub struct SnakePlugin;
 impl Plugin for SnakePlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(spawn_head)
             .add_startup_system(spawn_body);
+
+        app.add_event::<EatEvent>();
 
         app.add_system(
             handle_input
@@ -84,7 +93,9 @@ impl Plugin for SnakePlugin {
         .add_system_set(
             SystemSet::new()
                 .with_run_criteria(FixedTimestep::step(0.125))
-                .with_system(move_snake.label(SnakeStages::Movement)),
+                .with_system(move_snake.label(SnakeStages::Movement))
+                .with_system(eat.label(SnakeStages::Eat).after(SnakeStages::Movement))
+                .with_system(grow.label(SnakeStages::Grow).after(SnakeStages::Eat)),
         );
     }
 }
@@ -94,8 +105,9 @@ impl Plugin for SnakePlugin {
 pub enum SnakeStages {
     Input,
     Movement,
+    Eat,
+    Grow,
     Collision,
-    Growth,
 }
 
 fn spawn_head(mut commands: Commands) {
@@ -119,20 +131,20 @@ fn spawn_head(mut commands: Commands) {
 }
 
 fn spawn_body(mut commands: Commands) {
-    commands
-        .spawn_bundle(BodyPartBundle {
-            body_part: BodyPart,
-            position: Position { x: 0, y: 0 },
-            sprite: SpriteBundle {
-                sprite: Sprite {
-                    color: BODY_COLOR,
-                    custom_size: Some(Vec2::new(CEL_SIZE * 0.75, CEL_SIZE * 0.75)),
-                    ..Default::default()
-                },
+    commands.spawn_bundle(BodyPartBundle {
+        body_part: BodyPart,
+        position: Position { x: 0, y: 0 },
+        order: Order(1),
+        sprite: SpriteBundle {
+            sprite: Sprite {
+                color: BODY_COLOR,
+                custom_size: Some(Vec2::new(CEL_SIZE * 0.75, CEL_SIZE * 0.75)),
                 ..Default::default()
             },
-        })
-        .insert(Last);
+            ..Default::default()
+        },
+    });
+    commands.insert_resource(AmountBodyParts(1))
 }
 
 fn handle_input(mut query: Query<&mut MovementStatus, With<Head>>, key_input: Res<Input<KeyCode>>) {
@@ -163,9 +175,10 @@ fn handle_input(mut query: Query<&mut MovementStatus, With<Head>>, key_input: Re
 }
 
 fn move_snake(
+    amount_body_parts: Res<AmountBodyParts>,
     mut query: QuerySet<(
         QueryState<(&mut MovementStatus, &mut Position), With<Head>>,
-        QueryState<&mut Position, With<BodyPart>>,
+        QueryState<(&mut Position, &Order), With<BodyPart>>,
     )>,
 ) {
     let head_prev_pos: Position;
@@ -186,9 +199,64 @@ fn move_snake(
     };
     // Handle body movement
     // Create a vector to save positions to move the body
-    let mut nex_body_pos: Vec<Position> = query.q1().iter().skip(1).map(|p| *p).collect();
-    nex_body_pos.push(head_prev_pos);
-    for (mut bp, next) in query.q1().iter_mut().zip(nex_body_pos.iter()) {
-        *bp = *next;
+    let mut nex_body_pos: Vec<Position> = vec![head_prev_pos; amount_body_parts.0];
+    for (bp, order) in query.q1().iter() {
+        if order.0 < amount_body_parts.0 {
+            nex_body_pos[order.0] = *bp;
+        }
+    }
+    for (mut bp, order) in query.q1().iter_mut() {
+        *bp = nex_body_pos[order.0 - 1];
+    }
+}
+
+fn eat(
+    mut commands: Commands,
+    mut event_writer: EventWriter<EatEvent>,
+    food_query: Query<(Entity, &Position), With<Food>>,
+    head_query: Query<&Position, With<Head>>,
+) {
+    let head_pos = match head_query.get_single() {
+        Ok(pos) => pos,
+        Err(_) => panic!("HOW DID WE EVEN GET HERE!?!?"),
+    };
+    match food_query.get_single() {
+        Ok((ent, pos)) => {
+            if pos == head_pos {
+                commands.entity(ent).despawn();
+                event_writer.send(EatEvent);
+            }
+        }
+        Err(_) => panic!("HOW DID WE EVEN GET HERE!?!?"),
+    };
+}
+
+fn grow(
+    mut commands: Commands,
+    mut event_reader: EventReader<EatEvent>,
+    mut amount_body_parts: ResMut<AmountBodyParts>,
+    body_query: Query<(&Position, &Order), With<BodyPart>>,
+) {
+    if !event_reader.iter().next().is_some() {
+        return;
+    }
+    for (pos, order) in body_query.iter() {
+        if order.0 == amount_body_parts.0 {
+            amount_body_parts.0 += 1;
+            commands.spawn_bundle(BodyPartBundle {
+                body_part: BodyPart,
+                position: *pos,
+                order: Order(amount_body_parts.0),
+                sprite: SpriteBundle {
+                    sprite: Sprite {
+                        color: BODY_COLOR,
+                        custom_size: Some(Vec2::new(CEL_SIZE * 0.75, CEL_SIZE * 0.75)),
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+            });
+            break;
+        }
     }
 }

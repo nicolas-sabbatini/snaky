@@ -8,7 +8,7 @@ use rand::prelude::random;
 const FOOD_COLOR: Color = Color::rgb(0.7, 0.0, 0.0);
 
 #[derive(Component, Debug)]
-struct Food;
+pub struct Food;
 
 #[derive(Bundle)]
 struct FoodBundle {
