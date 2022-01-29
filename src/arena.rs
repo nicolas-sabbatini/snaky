@@ -2,13 +2,13 @@ use crate::GameSize;
 use bevy::prelude::*;
 use std::ops::Add;
 
-const ARENA_WIDTH: u32 = 40;
-const ARENA_HEIGHT: u32 = 30;
+pub const ARENA_WIDTH: i32 = 40;
+pub const ARENA_HEIGHT: i32 = 30;
 pub const CEL_SIZE: f32 = 20.0;
 
 pub struct ArenaSize {
-    pub width: u32,
-    pub height: u32,
+    pub width: i32,
+    pub height: i32,
 }
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]

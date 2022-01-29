@@ -1,7 +1,10 @@
-use crate::{arena::CEL_SIZE, food::Food};
+use crate::{
+    arena::{ARENA_HEIGHT, ARENA_WIDTH, CEL_SIZE},
+    food::Food,
+};
 
 use super::arena::Position;
-use bevy::{core::FixedTimestep, prelude::*};
+use bevy::{core::FixedTimestep, ecs::schedule::ShouldRun, prelude::*};
 
 // Snake constant
 const HEAD_COLOR: Color = Color::rgb(0.7, 0.7, 0.7);
@@ -76,6 +79,8 @@ struct MovementStatus {
 // Events definitions
 struct EatEvent;
 
+struct GameOver(usize);
+
 // Plugin definition
 pub struct SnakePlugin;
 impl Plugin for SnakePlugin {
@@ -84,6 +89,7 @@ impl Plugin for SnakePlugin {
             .add_startup_system(spawn_body);
 
         app.add_event::<EatEvent>();
+        app.add_event::<GameOver>();
 
         app.add_system(
             handle_input
@@ -93,9 +99,29 @@ impl Plugin for SnakePlugin {
         .add_system_set(
             SystemSet::new()
                 .with_run_criteria(FixedTimestep::step(0.125))
-                .with_system(move_snake.label(SnakeStages::Movement))
+                .with_system(movement.label(SnakeStages::Movement))
                 .with_system(eat.label(SnakeStages::Eat).after(SnakeStages::Movement))
-                .with_system(grow.label(SnakeStages::Grow).after(SnakeStages::Eat)),
+                .with_system(grow.label(SnakeStages::Grow).after(SnakeStages::Eat))
+                .with_system(
+                    collision
+                        .label(SnakeStages::Collision)
+                        .after(SnakeStages::Movement),
+                ),
+        )
+        .add_system_set(
+            SystemSet::new()
+                .with_run_criteria(game_over)
+                .with_system(clear.label(GameOverStages::Clear))
+                .with_system(
+                    spawn_body
+                        .label(GameOverStages::RespawnBody)
+                        .after(GameOverStages::Clear),
+                )
+                .with_system(
+                    spawn_head
+                        .label(GameOverStages::RespawnHead)
+                        .after(GameOverStages::Clear),
+                ),
         );
     }
 }
@@ -108,6 +134,13 @@ pub enum SnakeStages {
     Eat,
     Grow,
     Collision,
+}
+
+#[derive(SystemLabel, Debug, Hash, PartialEq, Eq, Clone)]
+pub enum GameOverStages {
+    Clear,
+    RespawnBody,
+    RespawnHead,
 }
 
 fn spawn_head(mut commands: Commands) {
@@ -131,19 +164,21 @@ fn spawn_head(mut commands: Commands) {
 }
 
 fn spawn_body(mut commands: Commands) {
-    commands.spawn_bundle(BodyPartBundle {
-        body_part: BodyPart,
-        position: Position { x: 0, y: 0 },
-        order: Order(1),
-        sprite: SpriteBundle {
-            sprite: Sprite {
-                color: BODY_COLOR,
-                custom_size: Some(Vec2::new(CEL_SIZE * 0.75, CEL_SIZE * 0.75)),
+    for _ in 0..2400 {
+        commands.spawn_bundle(BodyPartBundle {
+            body_part: BodyPart,
+            position: Position { x: 0, y: 0 },
+            order: Order(1),
+            sprite: SpriteBundle {
+                sprite: Sprite {
+                    color: BODY_COLOR,
+                    custom_size: Some(Vec2::new(CEL_SIZE * 0.75, CEL_SIZE * 0.75)),
+                    ..Default::default()
+                },
                 ..Default::default()
             },
-            ..Default::default()
-        },
-    });
+        });
+    }
     commands.insert_resource(AmountBodyParts(1))
 }
 
@@ -174,7 +209,7 @@ fn handle_input(mut query: Query<&mut MovementStatus, With<Head>>, key_input: Re
     }
 }
 
-fn move_snake(
+fn movement(
     amount_body_parts: Res<AmountBodyParts>,
     mut query: QuerySet<(
         QueryState<(&mut MovementStatus, &mut Position), With<Head>>,
@@ -258,5 +293,52 @@ fn grow(
             });
             break;
         }
+    }
+}
+
+fn collision(
+    mut event_writer: EventWriter<GameOver>,
+    amount_body_parts: Res<AmountBodyParts>,
+    body_query: Query<&Position, With<BodyPart>>,
+    head_query: Query<&Position, With<Head>>,
+) {
+    let head_pos = match head_query.get_single() {
+        Ok(pos) => pos,
+        Err(_) => panic!("HOW DID WE EVEN GET HERE!?!?"),
+    };
+    if head_pos.x < 0 || head_pos.y < 0 || head_pos.x >= ARENA_WIDTH || head_pos.y >= ARENA_HEIGHT {
+        event_writer.send(GameOver(amount_body_parts.0 - 1));
+        return;
+    }
+    for body_pos in body_query.iter() {
+        if head_pos == body_pos {
+            event_writer.send(GameOver(amount_body_parts.0 - 1));
+            return;
+        }
+    }
+}
+
+fn game_over(mut event_reader: EventReader<GameOver>) -> ShouldRun {
+    if event_reader.iter().next().is_some() {
+        ShouldRun::Yes
+    } else {
+        ShouldRun::No
+    }
+}
+
+fn clear(
+    mut commands: Commands,
+    body_query: Query<Entity, With<BodyPart>>,
+    food_query: Query<Entity, With<Food>>,
+    head_query: Query<Entity, With<Head>>,
+) {
+    for ent in body_query.iter() {
+        commands.entity(ent).despawn();
+    }
+    for ent in food_query.iter() {
+        commands.entity(ent).despawn();
+    }
+    for ent in head_query.iter() {
+        commands.entity(ent).despawn();
     }
 }

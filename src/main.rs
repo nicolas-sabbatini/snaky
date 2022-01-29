@@ -1,3 +1,5 @@
+use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
+
 use arena::ArenaPlugin;
 use bevy::prelude::*;
 use food::FoodPlugin;
@@ -29,6 +31,9 @@ fn main() {
         width: WIN_WIDTH,
         height: WIN_HEIGHT,
     });
+
+    app.add_plugin(LogDiagnosticsPlugin::default())
+        .add_plugin(FrameTimeDiagnosticsPlugin::default());
 
     app.add_plugins(DefaultPlugins)
         .add_plugin(SnakePlugin)
