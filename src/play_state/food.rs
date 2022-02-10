@@ -1,4 +1,4 @@
-use crate::arena::{ArenaSize, Position, CEL_SIZE};
+use super::arena::{ArenaSize, Position, CEL_SIZE};
 use bevy::{
     ecs::{schedule::ShouldRun, system::QuerySingleError},
     prelude::*,

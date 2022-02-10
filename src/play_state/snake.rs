@@ -1,14 +1,13 @@
-use crate::{
+use super::arena::Position;
+use super::{
     arena::{ARENA_HEIGHT, ARENA_WIDTH, CEL_SIZE},
     food::Food,
 };
-
-use super::arena::Position;
 use bevy::{core::FixedTimestep, ecs::schedule::ShouldRun, prelude::*};
 
 // Snake constant
-const HEAD_COLOR: Color = Color::rgb(0.7, 0.7, 0.7);
-const BODY_COLOR: Color = Color::rgb(0.5, 0.5, 0.5);
+const HEAD_COLOR: Color = Color::rgb(0.8, 0.8, 0.8);
+const BODY_COLOR: Color = Color::rgb(0.6, 0.6, 0.6);
 
 // Components and Bundles definitions
 #[derive(Component, Debug)]
@@ -30,7 +29,7 @@ struct BodyPart;
 struct Order(usize);
 
 #[derive(Debug)]
-struct AmountBodyParts(usize);
+pub struct AmountBodyParts(pub usize);
 
 #[derive(Bundle)]
 struct BodyPartBundle {
@@ -177,7 +176,7 @@ fn spawn_body(mut commands: Commands) {
             ..Default::default()
         },
     });
-    commands.insert_resource(AmountBodyParts(1))
+    commands.insert_resource(AmountBodyParts(1));
 }
 
 fn handle_input(mut query: Query<&mut MovementStatus, With<Head>>, key_input: Res<Input<KeyCode>>) {
@@ -197,7 +196,9 @@ fn handle_input(mut query: Query<&mut MovementStatus, With<Head>>, key_input: Re
 
     for td in target_direction.iter() {
         for mut movement_status in query.iter_mut() {
-            if movement_status.current_direction.opposite() != *td {
+            if movement_status.current_direction.opposite() != *td
+                && movement_status.current_direction != *td
+            {
                 movement_status.next_direction = *td;
                 movement_status.buffer_direction = None;
             } else if movement_status.next_direction.opposite() != *td {

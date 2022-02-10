@@ -2,7 +2,7 @@
 name = "snaky"
 version = "0.1.0"
 edition = "2021"
-licence = "GPL-3.0"
+license = "GPL-3.0"
 
 [dependencies]
 bevy = "0.6"
