@@ -1,4 +1,4 @@
-use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
+//use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use play_state::PlayStatePlugin;
 
@@ -35,8 +35,8 @@ fn main() {
 
     app.add_state(AppState::PlayState);
 
-    app.add_plugin(LogDiagnosticsPlugin::default())
-        .add_plugin(FrameTimeDiagnosticsPlugin::default());
+    //app.add_plugin(LogDiagnosticsPlugin::default())
+    //    .add_plugin(FrameTimeDiagnosticsPlugin::default());
 
     app.add_plugins(DefaultPlugins).add_plugin(PlayStatePlugin);
 

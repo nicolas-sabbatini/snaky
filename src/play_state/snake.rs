@@ -97,6 +97,7 @@ impl Plugin for SnakePlugin {
         )
         .add_system_set(
             SystemSet::new()
+                .label(GameStages::Update)
                 .with_run_criteria(FixedTimestep::step(0.125))
                 .with_system(movement.label(SnakeStages::Movement))
                 .with_system(eat.label(SnakeStages::Eat).after(SnakeStages::Movement))
@@ -109,6 +110,8 @@ impl Plugin for SnakePlugin {
         )
         .add_system_set(
             SystemSet::new()
+                .label(GameStages::EndGame)
+                .after(GameStages::Update)
                 .with_run_criteria(game_over)
                 .with_system(clear.label(GameOverStages::Clear))
                 .with_system(
@@ -126,6 +129,12 @@ impl Plugin for SnakePlugin {
 }
 
 // System definitions
+#[derive(SystemLabel, Debug, Hash, PartialEq, Eq, Clone)]
+pub enum GameStages {
+    Update,
+    EndGame,
+}
+
 #[derive(SystemLabel, Debug, Hash, PartialEq, Eq, Clone)]
 pub enum SnakeStages {
     Input,
