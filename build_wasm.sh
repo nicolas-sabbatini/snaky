@@ -83,6 +83,6 @@ wasm-bindgen target/wasm32-unknown-unknown/release/$PROJECT_NAME.wasm --out-dir 
 echo "$HTML" > dist/index.html
 
 # Copy assets
-if [[ -f "assets" ]]; then
-    cp -r assets dist/
+if [[ -d ./assets ]]; then
+	cp -r assets dist/
 fi
