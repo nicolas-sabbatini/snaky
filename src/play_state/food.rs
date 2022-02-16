@@ -1,4 +1,7 @@
-use super::arena::{ArenaSize, Position, CEL_SIZE};
+use super::{
+    arena::{ArenaSize, Position, CEL_SIZE},
+    is_in_play_state_chain,
+};
 use bevy::{
     ecs::{schedule::ShouldRun, system::QuerySingleError},
     prelude::*,
@@ -23,7 +26,7 @@ impl Plugin for FoodPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(
             SystemSet::new()
-                .with_run_criteria(no_food)
+                .with_run_criteria(no_food.chain(is_in_play_state_chain))
                 .with_system(food_spawner),
         );
     }

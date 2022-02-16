@@ -1,7 +1,9 @@
 use super::arena::Position;
+use super::is_in_play_state_chain;
 use super::{
     arena::{ARENA_HEIGHT, ARENA_WIDTH, CEL_SIZE},
     food::Food,
+    AppState,
 };
 use bevy::{core::FixedTimestep, ecs::schedule::ShouldRun, prelude::*};
 
@@ -84,21 +86,25 @@ struct GameOver(usize);
 pub struct SnakePlugin;
 impl Plugin for SnakePlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(spawn_head)
-            .add_startup_system(spawn_body);
-
         app.add_event::<EatEvent>();
         app.add_event::<GameOver>();
 
-        app.add_system(
-            handle_input
-                .label(SnakeStages::Input)
-                .before(SnakeStages::Movement),
+        app.add_system_set(
+            SystemSet::on_enter(AppState::PlayState)
+                .with_system(spawn_head)
+                .with_system(spawn_body),
+        )
+        .add_system_set(
+            SystemSet::on_update(AppState::PlayState).with_system(
+                handle_input
+                    .label(SnakeStages::Input)
+                    .before(SnakeStages::Movement),
+            ),
         )
         .add_system_set(
             SystemSet::new()
                 .label(GameStages::Update)
-                .with_run_criteria(FixedTimestep::step(0.125))
+                .with_run_criteria(FixedTimestep::step(0.125).chain(is_in_play_state_chain))
                 .with_system(movement.label(SnakeStages::Movement))
                 .with_system(eat.label(SnakeStages::Eat).after(SnakeStages::Movement))
                 .with_system(grow.label(SnakeStages::Grow).after(SnakeStages::Eat))
@@ -112,7 +118,7 @@ impl Plugin for SnakePlugin {
             SystemSet::new()
                 .label(GameStages::EndGame)
                 .after(GameStages::Update)
-                .with_run_criteria(game_over)
+                .with_run_criteria(game_over.chain(is_in_play_state_chain))
                 .with_system(clear.label(GameOverStages::Clear))
                 .with_system(
                     spawn_body

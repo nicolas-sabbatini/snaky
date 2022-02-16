@@ -1,15 +1,15 @@
 use bevy::prelude::*;
 
 use super::snake::AmountBodyParts;
+use super::AppState;
 
 const SCORE_COLOR: Color = Color::rgb(0.3, 0.3, 0.3);
 
 pub struct ScoreBoardPlugin;
 impl Plugin for ScoreBoardPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(spawn_scoreboard);
-
-        app.add_system(change_score);
+        app.add_system_set(SystemSet::on_enter(AppState::PlayState).with_system(spawn_scoreboard))
+            .add_system_set(SystemSet::on_update(AppState::PlayState).with_system(change_score));
     }
 }
 

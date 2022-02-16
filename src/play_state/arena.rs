@@ -1,3 +1,4 @@
+use super::{is_in_play_state, AppState};
 use crate::GameSize;
 use bevy::prelude::*;
 use std::ops::Add;
@@ -29,12 +30,13 @@ impl Add for Position {
 pub struct ArenaPlugin;
 impl Plugin for ArenaPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(setup_arena);
-
-        app.add_system_set_to_stage(
-            CoreStage::PostUpdate,
-            SystemSet::new().with_system(update_position),
-        );
+        app.add_system_set(SystemSet::on_enter(AppState::PlayState).with_system(setup_arena))
+            .add_system_set_to_stage(
+                CoreStage::PostUpdate,
+                SystemSet::new()
+                    .with_run_criteria(is_in_play_state)
+                    .with_system(update_position),
+            );
     }
 }
 

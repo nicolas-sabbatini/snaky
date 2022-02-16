@@ -1,4 +1,4 @@
-//use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
+use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use play_state::PlayStatePlugin;
 
@@ -15,6 +15,7 @@ struct GameSize {
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 enum AppState {
+    MainMenuState,
     PlayState,
 }
 
@@ -33,10 +34,10 @@ fn main() {
         height: WIN_HEIGHT,
     });
 
-    app.add_state(AppState::PlayState);
+    app.add_state(AppState::MainMenuState); // PlayState);
 
-    //app.add_plugin(LogDiagnosticsPlugin::default())
-    //    .add_plugin(FrameTimeDiagnosticsPlugin::default());
+    app.add_plugin(LogDiagnosticsPlugin::default())
+        .add_plugin(FrameTimeDiagnosticsPlugin::default());
 
     app.add_plugins(DefaultPlugins).add_plugin(PlayStatePlugin);
 
