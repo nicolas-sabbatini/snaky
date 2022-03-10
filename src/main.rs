@@ -1,7 +1,9 @@
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
+use menu_state::MenuStatePlugin;
 use play_state::PlayStatePlugin;
 
+mod menu_state;
 mod play_state;
 
 const WIN_WIDTH: f32 = 800.0;
@@ -34,12 +36,14 @@ fn main() {
         height: WIN_HEIGHT,
     });
 
-    app.add_state(AppState::MainMenuState); // PlayState);
+    app.add_state(AppState::PlayState);
 
     app.add_plugin(LogDiagnosticsPlugin::default())
         .add_plugin(FrameTimeDiagnosticsPlugin::default());
 
-    app.add_plugins(DefaultPlugins).add_plugin(PlayStatePlugin);
+    app.add_plugins(DefaultPlugins)
+        .add_plugin(PlayStatePlugin)
+        .add_plugin(MenuStatePlugin);
 
     app.add_startup_system(setup_camera)
         .add_startup_system(setup_ui_camera);

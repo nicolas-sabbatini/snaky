@@ -194,6 +194,7 @@ fn spawn_body(mut commands: Commands) {
     commands.insert_resource(AmountBodyParts(1));
 }
 
+// This is buggy as hell TODO fix
 fn handle_input(mut query: Query<&mut MovementStatus, With<Head>>, key_input: Res<Input<KeyCode>>) {
     let mut target_direction: Vec<Direction> = Vec::new();
     if key_input.pressed(KeyCode::Left) {
@@ -223,6 +224,7 @@ fn handle_input(mut query: Query<&mut MovementStatus, With<Head>>, key_input: Re
     }
 }
 
+// This is buggy as hell TODO fix
 fn movement(
     amount_body_parts: Res<AmountBodyParts>,
     mut query: QuerySet<(
@@ -244,7 +246,7 @@ fn movement(
             head_ms.current_direction = head_ms.next_direction;
             *head_pos = *head_pos + step_direction;
         }
-        Err(_) => panic!("HOW DID WE EVEN GET HERE!?!?"),
+        Err(_) => panic!("HOW DID WE EVEN GET HERE!?!? No head error"),
     };
     // Handle body movement
     // Create a vector to save positions to move the body
@@ -267,7 +269,7 @@ fn eat(
 ) {
     let head_pos = match head_query.get_single() {
         Ok(pos) => pos,
-        Err(_) => panic!("HOW DID WE EVEN GET HERE!?!?"),
+        Err(_) => panic!("HOW DID WE EVEN GET HERE!?!? No head for food"),
     };
     match food_query.get_single() {
         Ok((ent, pos)) => {
@@ -276,7 +278,7 @@ fn eat(
                 event_writer.send(EatEvent);
             }
         }
-        Err(_) => panic!("HOW DID WE EVEN GET HERE!?!?"),
+        Err(_) => panic!("HOW DID WE EVEN GET HERE!?!? No food for head"),
     };
 }
 
@@ -318,7 +320,7 @@ fn collision(
 ) {
     let head_pos = match head_query.get_single() {
         Ok(pos) => pos,
-        Err(_) => panic!("HOW DID WE EVEN GET HERE!?!?"),
+        Err(_) => panic!("HOW DID WE EVEN GET HERE!?!? No head to collide"),
     };
     if head_pos.x < 0 || head_pos.y < 0 || head_pos.x >= ARENA_WIDTH || head_pos.y >= ARENA_HEIGHT {
         event_writer.send(GameOver(amount_body_parts.0 - 1));

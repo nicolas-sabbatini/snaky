@@ -35,6 +35,6 @@ fn change_score(amount_body_parts: Res<AmountBodyParts>, mut query: Query<&mut T
         Ok(mut text) => {
             text.sections[0].value = format!("{}", amount_body_parts.0 - 1);
         }
-        Err(_) => panic!("HOW DID WE EVEN GET HERE!?!?"),
+        Err(_) => panic!("HOW DID WE EVEN GET HERE!?!? No body error"),
     }
 }
