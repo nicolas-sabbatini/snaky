@@ -25,7 +25,7 @@ fn main() {
     let mut app = App::new();
 
     app.insert_resource(WindowDescriptor {
-        title: "Bevy Invasion".to_string(),
+        title: "Snaky".to_string(),
         width: WIN_WIDTH,
         height: WIN_HEIGHT,
         ..Default::default()
@@ -45,8 +45,7 @@ fn main() {
         .add_plugin(PlayStatePlugin)
         .add_plugin(MenuStatePlugin);
 
-    app.add_startup_system(setup_camera)
-        .add_startup_system(setup_ui_camera);
+    app.add_startup_system(setup_camera);
 
     app.run();
 }
@@ -76,19 +75,4 @@ fn setup_camera(mut commands: Commands, win_res: Res<Windows>) {
     };
     spawn_letterboxing(1.0);
     spawn_letterboxing(-1.0);
-}
-
-fn setup_ui_camera(mut commands: Commands, win_res: Res<Windows>) {
-    // Get primary window
-    let win = win_res.get_primary().unwrap();
-    // Create camera
-    let mut new_camera = UiCameraBundle::default();
-    // Set camera variables
-    new_camera.orthographic_projection.scaling_mode =
-        bevy::render::camera::ScalingMode::FixedVertical;
-    new_camera.orthographic_projection.window_origin = bevy::render::camera::WindowOrigin::Center;
-
-    new_camera.orthographic_projection.scale = win.height() / 2.0;
-    // Spawn new camera
-    commands.spawn_bundle(new_camera);
 }

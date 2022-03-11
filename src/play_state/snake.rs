@@ -1,4 +1,5 @@
 use super::arena::Position;
+use super::food::spawn_food;
 use super::is_in_play_state_chain;
 use super::{
     arena::{ARENA_HEIGHT, ARENA_WIDTH, CEL_SIZE},
@@ -129,6 +130,11 @@ impl Plugin for SnakePlugin {
                     spawn_head
                         .label(GameOverStages::RespawnHead)
                         .after(GameOverStages::Clear),
+                )
+                .with_system(
+                    spawn_food
+                        .label(GameOverStages::RespawnFood)
+                        .after(GameOverStages::Clear),
                 ),
         );
     }
@@ -155,6 +161,7 @@ pub enum GameOverStages {
     Clear,
     RespawnBody,
     RespawnHead,
+    RespawnFood,
 }
 
 fn spawn_head(mut commands: Commands) {
