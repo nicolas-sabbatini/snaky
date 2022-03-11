@@ -36,7 +36,7 @@ fn main() {
         height: WIN_HEIGHT,
     });
 
-    app.add_state(AppState::PlayState);
+    app.add_state(AppState::MainMenuState);
 
     app.add_plugin(LogDiagnosticsPlugin::default())
         .add_plugin(FrameTimeDiagnosticsPlugin::default());

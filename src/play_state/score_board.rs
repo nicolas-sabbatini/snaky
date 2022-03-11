@@ -5,6 +5,16 @@ use super::AppState;
 
 const SCORE_COLOR: Color = Color::rgb(0.3, 0.3, 0.3);
 
+#[derive(Component, Debug)]
+struct ScoreText;
+
+#[derive(Bundle)]
+struct ScoreTextBundle {
+    lable: ScoreText,
+    #[bundle]
+    text: Text2dBundle,
+}
+
 pub struct ScoreBoardPlugin;
 impl Plugin for ScoreBoardPlugin {
     fn build(&self, app: &mut App) {
@@ -24,13 +34,19 @@ fn spawn_scoreboard(mut commands: Commands, asset_server: Res<AssetServer>) {
         vertical: VerticalAlign::Center,
         horizontal: HorizontalAlign::Center,
     };
-    commands.spawn_bundle(Text2dBundle {
-        text: Text::with_section("0", text_style.clone(), text_alignment),
-        ..Default::default()
+    commands.spawn_bundle(ScoreTextBundle {
+        lable: ScoreText,
+        text: Text2dBundle {
+            text: Text::with_section("0", text_style.clone(), text_alignment),
+            ..Default::default()
+        },
     });
 }
 
-fn change_score(amount_body_parts: Res<AmountBodyParts>, mut query: Query<&mut Text>) {
+fn change_score(
+    amount_body_parts: Res<AmountBodyParts>,
+    mut query: Query<&mut Text, With<ScoreText>>,
+) {
     match query.get_single_mut() {
         Ok(mut text) => {
             text.sections[0].value = format!("{}", amount_body_parts.0 - 1);
