@@ -167,7 +167,7 @@ pub enum GameOverStages {
 fn spawn_head(mut commands: Commands) {
     commands.spawn_bundle(HeadBundle {
         head: Head,
-        position: Position { x: 1, y: 0 },
+        position: Position { x: 20, y: 14 },
         movement_status: MovementStatus {
             current_direction: Direction::Right,
             next_direction: Direction::Right,
@@ -187,7 +187,7 @@ fn spawn_head(mut commands: Commands) {
 fn spawn_body(mut commands: Commands) {
     commands.spawn_bundle(BodyPartBundle {
         body_part: BodyPart,
-        position: Position { x: 0, y: 0 },
+        position: Position { x: 19, y: 14 },
         order: Order(1),
         sprite: SpriteBundle {
             sprite: Sprite {
@@ -243,7 +243,7 @@ fn movement(
     // Handle head movement
     match query.q0().get_single_mut() {
         Ok((mut head_ms, mut head_pos)) => {
-            head_prev_pos = (*head_pos).clone();
+            head_prev_pos = *head_pos;
             // Move head
             let step_direction: Position = head_ms.next_direction.into();
             if let Some(d) = head_ms.buffer_direction {
@@ -295,7 +295,7 @@ fn grow(
     mut amount_body_parts: ResMut<AmountBodyParts>,
     body_query: Query<(&Position, &Order), With<BodyPart>>,
 ) {
-    if !event_reader.iter().next().is_some() {
+    if event_reader.iter().next().is_none() {
         return;
     }
     for (pos, order) in body_query.iter() {
