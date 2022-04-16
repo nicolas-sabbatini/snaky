@@ -1,3 +1,5 @@
 TODO:
 [] load font general.
-[] functional options menu.
+[x] functional options menu.
+[] disable quit in wasm
+[] return to main menu
